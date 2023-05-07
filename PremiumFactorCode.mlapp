@@ -1,0 +1,205 @@
+classdef PremuimApp < matlab.apps.AppBase
+
+    % Properties that correspond to app components
+    properties (Access = public)
+        UIFigure                        matlab.ui.Figure
+        ShowresultButton                matlab.ui.control.Button
+        HealthInsurancePremiumFactorEditField  matlab.ui.control.NumericEditField
+        HealthInsurancePremiumFactorLabel  matlab.ui.control.Label
+        BMIRisksSlider                  matlab.ui.control.Slider
+        BMIRisksSliderLabel             matlab.ui.control.Label
+        OccupationHazardSlider          matlab.ui.control.Slider
+        OccupationHazardSliderLabel     matlab.ui.control.Label
+        HealthHistoryRisksSlider        matlab.ui.control.Slider
+        HealthHistoryRisksSliderLabel   matlab.ui.control.Label
+        PresentHealthStatusSlider       matlab.ui.control.Slider
+        PresentHealthStatusSliderLabel  matlab.ui.control.Label
+        AgeRiskSlider                   matlab.ui.control.Slider
+        AgeRiskSliderLabel              matlab.ui.control.Label
+        ContextMenu                     matlab.ui.container.ContextMenu
+        Menu                            matlab.ui.container.Menu
+        Menu2                           matlab.ui.container.Menu
+    end
+
+    
+    properties (Access = private)
+         FuzzyModel        % Declare FuzzyModel property % Description
+    end
+    
+
+    % Callbacks that handle component events
+    methods (Access = private)
+
+        % Code that executes after component creation
+        function startupFcn(app)
+          app.FuzzyModel = readfis(Premium.fis');
+        end
+
+        % Button pushed function: ShowresultButton
+        function ShowresultButtonPushed(app, event)
+       inputs = [app.BMIRisksSlider.Value, app.AgeRiskSlider.Value, app.OccupationHazardSlider.Value, app.PresentHealthStatusSlider.Value, app.HealthHistoryRisksSlider.Value];
+    output = evalfis(inputs, app.FuzzyModel);
+    app.HealthInsurancePremiumFactorEditField.Value = output;
+        end
+
+        % Value changed function: AgeRiskSlider
+        function AgeRiskSliderValueChanged(app, event)
+     value = app.AgeRiskSlider.Value;
+    i = 2; % index of the Age input variable
+    plotmf(app.UIAxes, 'input', i, app.FuzzyModel);
+        end
+
+        % Value changed function: PresentHealthStatusSlider
+        function PresentHealthStatusSliderValueChanged(app, event)
+            value = app.PresentHealthStatusSlider.Value;
+    i = 2; % index of the PresentHealthStatus input variable
+    plotmf(app.UIAxes, 'input', i, app.FuzzyModel);
+        end
+
+        % Value changed function: HealthHistoryRisksSlider
+        function HealthHistoryRisksSliderValueChanged(app, event)
+            value = app.HealthHistoryRisksSlider.Value;
+            i = 2; % index of the PresentHealthStatus input variable
+    plotmf(app.UIAxes, 'input', i, app.FuzzyModel);
+        end
+
+        % Value changed function: BMIRisksSlider
+        function BMIRisksSliderValueChanged(app, event)
+            value = app.BMIRisksSlider.Value;
+            i = 4; % index of the PresentHealthStatus input variable
+    plotmf(app.UIAxes, 'input', i, app.FuzzyModel);
+        end
+
+        % Value changed function: OccupationHazardSlider
+        function OccupationHazardSliderValueChanged(app, event)
+            value = app.OccupationHazardSlider.Value;
+            i = 4; % index of the PresentHealthStatus input variable
+    plotmf(app.UIAxes, 'input', i, app.FuzzyModel);
+        end
+    end
+
+    % Component initialization
+    methods (Access = private)
+
+        % Create UIFigure and components
+        function createComponents(app)
+
+            % Create UIFigure and hide until all components are created
+            app.UIFigure = uifigure('Visible', 'off');
+            app.UIFigure.Position = [100 100 640 485];
+            app.UIFigure.Name = 'MATLAB App';
+
+            % Create AgeRiskSliderLabel
+            app.AgeRiskSliderLabel = uilabel(app.UIFigure);
+            app.AgeRiskSliderLabel.HorizontalAlignment = 'right';
+            app.AgeRiskSliderLabel.Position = [96 435 53 22];
+            app.AgeRiskSliderLabel.Text = 'Age Risk';
+
+            % Create AgeRiskSlider
+            app.AgeRiskSlider = uislider(app.UIFigure);
+            app.AgeRiskSlider.ValueChangedFcn = createCallbackFcn(app, @AgeRiskSliderValueChanged, true);
+            app.AgeRiskSlider.Position = [50 423 181 3];
+
+            % Create PresentHealthStatusSliderLabel
+            app.PresentHealthStatusSliderLabel = uilabel(app.UIFigure);
+            app.PresentHealthStatusSliderLabel.HorizontalAlignment = 'right';
+            app.PresentHealthStatusSliderLabel.Position = [79 353 122 22];
+            app.PresentHealthStatusSliderLabel.Text = 'Present Health Status';
+
+            % Create PresentHealthStatusSlider
+            app.PresentHealthStatusSlider = uislider(app.UIFigure);
+            app.PresentHealthStatusSlider.ValueChangedFcn = createCallbackFcn(app, @PresentHealthStatusSliderValueChanged, true);
+            app.PresentHealthStatusSlider.Position = [50 341 181 3];
+
+            % Create HealthHistoryRisksSliderLabel
+            app.HealthHistoryRisksSliderLabel = uilabel(app.UIFigure);
+            app.HealthHistoryRisksSliderLabel.HorizontalAlignment = 'right';
+            app.HealthHistoryRisksSliderLabel.Position = [84 258 113 22];
+            app.HealthHistoryRisksSliderLabel.Text = 'Health History Risks';
+
+            % Create HealthHistoryRisksSlider
+            app.HealthHistoryRisksSlider = uislider(app.UIFigure);
+            app.HealthHistoryRisksSlider.ValueChangedFcn = createCallbackFcn(app, @HealthHistoryRisksSliderValueChanged, true);
+            app.HealthHistoryRisksSlider.Position = [50 246 181 3];
+
+            % Create OccupationHazardSliderLabel
+            app.OccupationHazardSliderLabel = uilabel(app.UIFigure);
+            app.OccupationHazardSliderLabel.HorizontalAlignment = 'right';
+            app.OccupationHazardSliderLabel.Position = [86 76 108 22];
+            app.OccupationHazardSliderLabel.Text = 'Occupation Hazard';
+
+            % Create OccupationHazardSlider
+            app.OccupationHazardSlider = uislider(app.UIFigure);
+            app.OccupationHazardSlider.ValueChangedFcn = createCallbackFcn(app, @OccupationHazardSliderValueChanged, true);
+            app.OccupationHazardSlider.Position = [50 64 181 3];
+
+            % Create BMIRisksSliderLabel
+            app.BMIRisksSliderLabel = uilabel(app.UIFigure);
+            app.BMIRisksSliderLabel.HorizontalAlignment = 'right';
+            app.BMIRisksSliderLabel.Position = [111 161 59 22];
+            app.BMIRisksSliderLabel.Text = 'BMI Risks';
+
+            % Create BMIRisksSlider
+            app.BMIRisksSlider = uislider(app.UIFigure);
+            app.BMIRisksSlider.ValueChangedFcn = createCallbackFcn(app, @BMIRisksSliderValueChanged, true);
+            app.BMIRisksSlider.Position = [50 149 181 3];
+
+            % Create HealthInsurancePremiumFactorLabel
+            app.HealthInsurancePremiumFactorLabel = uilabel(app.UIFigure);
+            app.HealthInsurancePremiumFactorLabel.HorizontalAlignment = 'right';
+            app.HealthInsurancePremiumFactorLabel.Position = [415 291 188 22];
+            app.HealthInsurancePremiumFactorLabel.Text = 'Health Insurance Premium Factor ';
+
+            % Create HealthInsurancePremiumFactorEditField
+            app.HealthInsurancePremiumFactorEditField = uieditfield(app.UIFigure, 'numeric');
+         app.HealthInsurancePremiumFactorEditField.Position = [474 235 75 38];
+
+            % Create ShowresultButton
+            app.ShowresultButton = uibutton(app.UIFigure, 'push');
+            app.ShowresultButton.ButtonPushedFcn = createCallbackFcn(app, @ShowresultButtonPushed, true);
+            app.ShowresultButton.Position = [296 235 77 35];
+            app.ShowresultButton.Text = 'Show result';
+
+            % Create ContextMenu
+            app.ContextMenu = uicontextmenu(app.UIFigure);
+
+            % Create Menu
+            app.Menu = uimenu(app.ContextMenu);
+            app.Menu.Text = 'Menu';
+
+            % Create Menu2
+            app.Menu2 = uimenu(app.ContextMenu);
+            app.Menu2.Text = 'Menu2';
+
+            % Show the figure after all components are created
+            app.UIFigure.Visible = 'on';
+        end
+    end
+    % App creation and deletion
+    methods (Access = public)
+
+        % Construct app
+        function app = PremuimApp
+
+            % Create UIFigure and components
+            createComponents(app)
+
+            % Register the app with App Designer
+            registerApp(app, app.UIFigure)
+
+            % Execute the startup function
+            runStartupFcn(app, @startupFcn)
+
+            if nargout == 0
+                clear app
+            end
+        end
+
+        % Code that executes before app deletion
+        function delete(app)
+
+            % Delete UIFigure when app is deleted
+            delete(app.UIFigure)
+        end
+    end
+end
